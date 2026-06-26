@@ -105,6 +105,11 @@ def main(page: ft.Page):
 
             model_name = get_model()
             llm = LLMClient(provider=provider_name, api_key=api_key, model=model_name or None)
+
+            ok, msg = llm.check_connection()
+            if not ok:
+                raise ConnectionError(msg)
+
             search = DuckDuckGoProvider()
             graph = build_pipeline(llm, search)
 
@@ -132,15 +137,25 @@ def main(page: ft.Page):
             for key, val in tracked.items():
                 setattr(final_state, key, val)
 
+        except (ConnectionError, ValueError) as e:
+            logger.exception("Pipeline setup failed")
+            update_stage(str(e), -1)
+            status_text.color = ft.Colors.AMBER
+            page.update()
+            time.sleep(4)
+            go_topic()
+
         except Exception as e:
             logger.exception("Pipeline failed")
             update_stage(f"Error: {e}", -1)
             status_text.color = ft.Colors.RED
             page.update()
             time.sleep(3)
+            go_report()
 
-        time.sleep(0.5)
-        go_report()
+        else:
+            time.sleep(0.5)
+            go_report()
 
     if not get_api_key():
         show_setup()

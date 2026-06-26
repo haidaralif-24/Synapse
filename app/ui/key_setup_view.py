@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Callable, Optional
+import threading
+from typing import Callable
 
 import flet as ft
 
-from ..config import default_model_for, get_model, get_provider, set_api_key, set_model, set_provider
+from ..config import default_model_for, get_api_key, get_model, get_provider, set_api_key, set_model, set_provider
+from ..providers.llm_client import LLMClient
 
 PROVIDER_OPTIONS = [
     ft.dropdown.Option("openai", "OpenAI"),
@@ -68,7 +70,32 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
         page.update()
         on_saved()
 
+    def on_test_click(e):
+        key = key_field.value.strip() or get_api_key()
+        if not key:
+            status_text.value = "Enter an API key first."
+            status_text.color = ft.Colors.RED
+            page.update()
+            return
+        status_text.value = "Testing connection..."
+        status_text.color = ft.Colors.GREY_700
+        page.update()
+
+        def test():
+            llm = LLMClient(
+                provider=provider_dd.value,
+                api_key=key,
+                model=model_field.value.strip() or None,
+            )
+            ok, msg = llm.check_connection()
+            status_text.value = msg
+            status_text.color = ft.Colors.GREEN if ok else ft.Colors.RED
+            page.update()
+
+        threading.Thread(target=test, daemon=True).start()
+
     save_btn = ft.FilledButton("Save & Continue", on_click=on_save_click)
+    test_btn = ft.OutlinedButton("Test Connection", on_click=on_test_click)
 
     return ft.View(
         controls=[
@@ -80,7 +107,11 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
                     provider_dd,
                     model_field,
                     key_field,
-                    ft.Container(content=save_btn, margin=ft.Margin(0, 12, 0, 0)),
+                    ft.Row(
+                        [save_btn, test_btn],
+                        spacing=12,
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
                     status_text,
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,

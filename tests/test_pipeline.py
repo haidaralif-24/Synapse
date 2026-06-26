@@ -74,6 +74,35 @@ def test_llm_client(mock_openai):
     mock_instance.chat.completions.create.assert_called_once()
 
 
+@patch("app.providers.llm_client.OpenAI")
+def test_llm_client_check_connection_ok(mock_openai):
+    from app.providers.llm_client import LLMClient
+
+    mock_instance = MagicMock()
+    mock_openai.return_value = mock_instance
+
+    client = LLMClient(provider="openai", api_key="test-key")
+    ok, msg = client.check_connection()
+
+    assert ok is True
+    assert "successful" in msg
+
+
+@patch("app.providers.llm_client.OpenAI")
+def test_llm_client_check_connection_failure(mock_openai):
+    from app.providers.llm_client import LLMClient
+
+    mock_instance = MagicMock()
+    mock_instance.chat.completions.create.side_effect = RuntimeError("Network error")
+    mock_openai.return_value = mock_instance
+
+    client = LLMClient(provider="openai", api_key="bad-key")
+    ok, msg = client.check_connection()
+
+    assert ok is False
+    assert "Network error" in msg
+
+
 def test_planner_node_parses_response():
     from app.graph.nodes.planner import planner_node
 
