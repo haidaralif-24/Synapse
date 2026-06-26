@@ -32,7 +32,7 @@ python -m app.run "Your research topic"
 ```
 
 On first run you'll be prompted to enter an API key and choose a provider.
-You can also set `DISTILLERY_API_KEY` and `DISTILLERY_PROVIDER` env vars for the CLI.
+You can also set `FETCHY_API_KEY` and `FETCHY_PROVIDER` env vars for the CLI.
 
 ## Package as executable
 
