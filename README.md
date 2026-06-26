@@ -1,4 +1,4 @@
-# Distillery
+# Fetchy
 
 A local, BYOK (bring-your-own-key) multi-agent research assistant. Breaks a topic into sub-questions, searches the web, summarizes findings, fact-checks claims against sources, corrects unsupported claims, and writes a final report — all on your own machine.
 
@@ -21,16 +21,23 @@ pip install -r requirements.txt
 
 ## Run
 
+**GUI:**
 ```bash
 python -m app.main
 ```
 
+**CLI (headless):**
+```bash
+python -m app.run "Your research topic"
+```
+
 On first run you'll be prompted to enter an API key and choose a provider.
+You can also set `DISTILLERY_API_KEY` and `DISTILLERY_PROVIDER` env vars for the CLI.
 
 ## Package as executable
 
 ```bash
-flet pack app/main.py --name distillery --icon assets/icon.png
+flet pack app/main.py --name fetchy --icon assets/icon.png
 ```
 
 ## Project Structure

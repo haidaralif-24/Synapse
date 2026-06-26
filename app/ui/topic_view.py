@@ -5,7 +5,7 @@ from typing import Callable
 import flet as ft
 
 
-def TopicView(page: ft.Page, on_submit: Callable[[str], None]) -> ft.View:
+def TopicView(page: ft.Page, on_submit: Callable[[str], None], on_settings: Callable | None = None) -> ft.View:
     topic_field = ft.TextField(
         label="Research Topic",
         hint_text="e.g. The impact of quantum computing on cryptography",
@@ -26,11 +26,13 @@ def TopicView(page: ft.Page, on_submit: Callable[[str], None]) -> ft.View:
 
     run_btn = ft.FilledButton("Run Research", on_click=on_run_click)
 
+    settings_btn = ft.IconButton(ft.Icons.SETTINGS, on_click=lambda e: on_settings() if on_settings else None, tooltip="Settings")
+
     return ft.View(
         controls=[
             ft.Column(
                 [
-                    ft.Text("Distillery", size=28, weight=ft.FontWeight.BOLD),
+                    ft.Row([ft.Text("Fetchy", size=28, weight=ft.FontWeight.BOLD), settings_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ft.Text("Multi-Agent Research Assistant", size=14, color=ft.Colors.GREY_700),
                     ft.Divider(height=20),
                     topic_field,

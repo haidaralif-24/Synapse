@@ -5,7 +5,7 @@ import json
 from ..state import ResearchState
 from ...providers.llm_client import LLMClient
 
-FACT_CHECKER_SYSTEM = """You are a fact-checking assistant. Given a summary and the original source evidence, identify claims in the summary that are not supported by the evidence.
+FACT_CHECKER_SYSTEM = """You are a fact-checking assistant. Given a findings summary with URL citations and the original source evidence, identify claims in the summary that are not supported by the evidence.
 
 Return a JSON list of verdicts. Each verdict must have:
 - "claim": the unsupported claim text

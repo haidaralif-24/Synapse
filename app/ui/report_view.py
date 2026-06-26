@@ -9,7 +9,7 @@ from ..graph.state import ResearchState
 
 def ReportView(page: ft.Page, state: ResearchState, on_back: Callable) -> ft.View:
     scroll_column = ft.Column(
-        [ft.Markdown(state.final_report, extension_set=ft.MarkdownExtensionSet.GITHUB)],
+        [ft.Markdown(state.final_report, extension_set=ft.MarkdownExtensionSet.GITHUB_FLAVORED)],
         scroll=ft.ScrollMode.ALWAYS,
         expand=True,
     )
@@ -21,7 +21,7 @@ def ReportView(page: ft.Page, state: ResearchState, on_back: Callable) -> ft.Vie
             ft.Column(
                 [
                     ft.Row([back_btn], alignment=ft.MainAxisAlignment.START),
-                    ft.Text("Research Report", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("Research Findings", size=24, weight=ft.FontWeight.BOLD),
                     ft.Divider(),
                     scroll_column,
                 ],

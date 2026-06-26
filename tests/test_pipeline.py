@@ -9,7 +9,9 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from app.graph.state import ResearchState, CorrectionEntry
-from app.providers.search.base import SearchResult
+from app.graph.build_graph import build_pipeline
+from app.providers.llm_client import LLMClient
+from app.providers.search.base import SearchProvider, SearchResult
 
 
 def test_state_defaults():
@@ -146,3 +148,40 @@ def test_writer_node():
 
     assert "final_report" in result
     assert result["final_report"] == "# Final Report\n\nContent here."
+
+
+class _MockSearchProvider(SearchProvider):
+    def search(self, query, num_results=5):
+        return [SearchResult(title="R1", url="https://x.com", snippet="Test snippet")]
+
+
+def test_graph_compiles():
+    from app.graph.build_graph import build_pipeline
+
+    mock_llm = MagicMock(spec=LLMClient)
+    mock_llm.invoke.return_value = "SUB-QUESTIONS:\n1. What is X?\n2. How does Y work?\n\nOUTLINE:\nIntro"
+    search = _MockSearchProvider()
+    graph = build_pipeline(mock_llm, search)
+    assert graph is not None
+
+    state = ResearchState(topic="Test")
+    results = list(graph.stream(state, stream_mode="updates"))
+    assert len(results) == 6
+    node_names = [k for r in results for k in r.keys()]
+    assert "planner" in node_names
+    assert "search" in node_names
+    assert "summarizer" in node_names
+    assert "fact_checker" in node_names
+    assert "correction" in node_names
+    assert "writer" in node_names
+
+
+def test_correction_node_skips_when_no_verdicts():
+    from app.graph.nodes.correction import correction_node
+
+    mock_llm = MagicMock()
+    state = ResearchState(topic="Test", summaries="Summary")
+    result = correction_node(state, mock_llm)
+    assert result["correction_log"] == []
+    assert "No corrections needed" in result["current_stage"]
+    mock_llm.invoke.assert_not_called()

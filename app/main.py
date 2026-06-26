@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import threading
+import time
 
 import flet as ft
 
-from .config import get_api_key
+from .config import get_api_key, get_model, get_provider
 from .graph.build_graph import build_pipeline
 from .graph.state import ResearchState
 from .providers.llm_client import LLMClient
@@ -17,89 +18,129 @@ from .utils.logging import setup_logger
 
 logger = setup_logger(__name__)
 
+STAGE_MAP = {
+    "planner": 0,
+    "search": 1,
+    "summarizer": 2,
+    "fact_checker": 3,
+    "correction": 4,
+    "writer": 5,
+}
+
 
 def main(page: ft.Page):
-    page.title = "Distillery — Research Assistant"
+    page.title = "Fetchy — Research Assistant"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 24
     page.window.width = 900
     page.window.height = 700
     page.scroll = ft.ScrollMode.AUTO
 
-    state = ResearchState(topic="")
+    final_state = ResearchState(topic="")
     pipeline_thread: threading.Thread | None = None
 
-    def show_setup():
+    stage_icons: list[ft.Icon] = []
+    stage_labels: list[ft.Text] = []
+    status_text = ft.Text("", size=14, italic=True, text_align=ft.TextAlign.CENTER)
+
+    def navigate(view):
         page.views.clear()
-        page.views.append(KeySetupView(page))
-        page.push_route("/setup")
+        page.views.append(view)
         page.update()
+
+    def show_setup():
+        navigate(KeySetupView(page, on_saved=go_topic))
+
+    def go_settings():
+        navigate(KeySetupView(page, on_saved=go_topic, settings_mode=True))
+
+    def go_topic():
+        navigate(TopicView(page, start_research, on_settings=go_settings))
+
+    def go_progress():
+        progress_view, icons, labels = ProgressView(page, status_text)
+        stage_icons.clear()
+        stage_icons.extend(icons)
+        stage_labels.clear()
+        stage_labels.extend(labels)
+        navigate(progress_view)
+
+    def go_report():
+        navigate(ReportView(page, final_state, go_topic))
 
     def start_research(topic: str):
         nonlocal pipeline_thread
-        state.topic = topic
+        final_state.topic = topic
         go_progress()
         pipeline_thread = threading.Thread(target=run_pipeline, daemon=True)
         pipeline_thread.start()
 
-    def go_progress():
-        progress_view = ProgressView(page)
-        page.views.clear()
-        page.views.append(progress_view)
-        page.push_route("/progress")
+    def update_stage(stage_name: str, stage_index: int):
+        if stage_index < 0:
+            status_text.value = stage_name
+            page.update()
+            return
+        for i, icon in enumerate(stage_icons):
+            if i < stage_index:
+                icon.name = ft.Icons.CHECK_CIRCLE
+                icon.color = ft.Colors.GREEN
+            elif i == stage_index:
+                icon.name = ft.Icons.PLAY_CIRCLE
+                icon.color = ft.Colors.BLUE
+            else:
+                icon.name = ft.Icons.CIRCLE_OUTLINED
+                icon.color = ft.Colors.GREY_400
+        for i, label in enumerate(stage_labels):
+            label.weight = ft.FontWeight.BOLD if i == stage_index else ft.FontWeight.NORMAL
+        status_text.value = f"Current stage: {stage_name}"
         page.update()
-
-    def go_topic():
-        topic_view = TopicView(page, start_research)
-        page.views.clear()
-        page.views.append(topic_view)
-        page.push_route("/topic")
-        page.update()
-
-    def go_report():
-        report_view = ReportView(page, state, go_topic)
-        page.views.clear()
-        page.views.append(report_view)
-        page.push_route("/report")
-        page.update()
-
-    def update_stage(stage: str):
-        if page.views and page.route == "/progress":
-            v = page.views[0]
-            for i, s in enumerate(STAGES):
-                if i < STAGES.index(stage):
-                    pass
-            status_text = None
-            for c in v.controls:
-                if isinstance(c, ft.Column):
-                    for item in c.controls:
-                        if isinstance(item, ft.Text) and item.italic:
-                            status_text = item
-                            break
-            if status_text:
-                status_text.value = f"Current stage: {stage}"
-                page.update()
 
     def run_pipeline():
+        nonlocal final_state
         try:
-            provider = __import__("app.config", fromlist=[""]).get_provider()
+            provider_name = get_provider()
             api_key = get_api_key()
-            llm = LLMClient(provider=provider, api_key=api_key)
+            if not api_key:
+                raise ValueError("No API key configured. Please go back to setup.")
+
+            model_name = get_model()
+            llm = LLMClient(provider=provider_name, api_key=api_key, model=model_name or None)
             search = DuckDuckGoProvider()
             graph = build_pipeline(llm, search)
 
-            for event in graph.stream(state):
+            tracked = {
+                "topic": final_state.topic,
+                "sub_questions": [],
+                "outline": "",
+                "search_results": [],
+                "summaries": "",
+                "fact_check_verdicts": [],
+                "correction_log": [],
+                "final_report": "",
+                "current_stage": "",
+            }
+
+            for event in graph.stream(final_state, stream_mode="updates"):
                 if isinstance(event, dict):
                     for node_name, updates in event.items():
                         if isinstance(updates, dict):
-                            stage = updates.get("current_stage", "")
-                            if stage:
-                                page.add(ft.Text(f"[{node_name}] {stage}"))
+                            tracked.update(updates)
+                            stage_index = STAGE_MAP.get(node_name, -1)
+                            stage_name = STAGES[stage_index] if stage_index >= 0 else node_name
+                            update_stage(stage_name, stage_index)
+
+            for key, val in tracked.items():
+                setattr(final_state, key, val)
+
         except Exception as e:
             logger.exception("Pipeline failed")
-            page.add(ft.Text(f"Pipeline error: {e}", color=ft.Colors.RED))
-        finally:
-            go_report()
+            update_stage(f"Error: {e}", -1)
+            status_text.color = ft.Colors.RED
+            page.update()
+            time.sleep(3)
+
+        time.sleep(0.5)
+        go_report()
 
     if not get_api_key():
         show_setup()

@@ -3,7 +3,7 @@ from __future__ import annotations
 from ..state import ResearchState
 from ...providers.llm_client import LLMClient
 
-PLANNER_SYSTEM = """You are a research planning assistant. Given a topic, break it down into 3-6 sub-questions and produce a short report outline.
+PLANNER_SYSTEM = """You are a research planning assistant. Given a topic, break it down into 3-6 sub-questions and produce a short findings outline.
 
 Return your response in exactly this format:
 
@@ -13,11 +13,11 @@ SUB-QUESTIONS:
 ...
 
 OUTLINE:
-<brief outline>"""
+<brief outline of findings sections>"""
 
 
 def planner_node(state: ResearchState, llm: LLMClient) -> dict:
-    user_prompt = f"Research topic: {state.topic}\n\nBreak this topic into sub-questions and provide a report outline."
+    user_prompt = f"Research topic: {state.topic}\n\nBreak this topic into sub-questions and provide a findings outline."
     response = llm.invoke(PLANNER_SYSTEM, user_prompt)
 
     sub_questions = []

@@ -92,30 +92,30 @@ research_tool/
 ## To-Do
 
 ### Pipeline first
-- [ ] Throwaway Flet + PyInstaller "hello world" pack — surface packaging
+- [x] Throwaway Flet + PyInstaller "hello world" pack — surface packaging
       issues (hidden imports, certifi) before any real logic is built
-- [ ] Define shared state schema (`state.py`)
-- [ ] Build LLM client wrapper with per-agent model/provider config
-- [ ] Build `SearchProvider` interface + DuckDuckGo implementation
-- [ ] Implement Planner node (topic → sub-questions + outline)
-- [ ] Implement Search node (parallel queries across sub-questions)
-- [ ] Implement Summarizer node (grounded, cited per-sub-question summaries)
-- [ ] Implement Fact Checker node (structured JSON verdicts per claim)
-- [ ] Implement Correction node (fix/strike flagged claims, write correction log)
-- [ ] Implement Writer node (assemble final markdown report)
-- [ ] Wire all nodes into the LangGraph graph (`build_graph.py`)
-- [ ] Run the full pipeline end-to-end from a plain script against a real topic
+- [x] Define shared state schema (`state.py`)
+- [x] Build LLM client wrapper with per-agent model/provider config
+- [x] Build `SearchProvider` interface + DuckDuckGo implementation
+- [x] Implement Planner node (topic → sub-questions + outline)
+- [x] Implement Search node (parallel queries across sub-questions)
+- [x] Implement Summarizer node (grounded, cited per-sub-question summaries)
+- [x] Implement Fact Checker node (structured JSON verdicts per claim)
+- [x] Implement Correction node (fix/strike flagged claims, write correction log)
+- [x] Implement Writer node (assemble final markdown report)
+- [x] Wire all nodes into the LangGraph graph (`build_graph.py`)
+- [x] Run the full pipeline end-to-end from a plain script against a real topic
+      (`python -m app.run "your topic"`)
 
 ### UI, packaging, polish
-- [ ] Build key-entry screen, wire to local storage (`keyring`)
-- [ ] Build topic input + run screen
-- [ ] Build staged progress view, calling the pipeline in-process
-- [ ] Build report view rendering the final markdown
-- [ ] Add an explicit "your key stays on this device" note in the UI
+- [x] Build key-entry screen, wire to local storage (`keyring`)
+- [x] Build topic input + run screen
+- [x] Build staged progress view, calling the pipeline in-process
+- [x] Build report view rendering the final markdown
+- [x] Add an explicit "your key stays on this device" note in the UI
 - [ ] Pack the real app with PyInstaller (`--onedir`), fix any hidden-import
       or certificate bundling issues
 - [ ] Test the built executable on a clean run (not just `python main.py`)
-- [ ] Write README with setup/run instructions
 
 ### Submission prep (don't leave this for 11:59pm)
 - [ ] Screenshot(s) of the running app

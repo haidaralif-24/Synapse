@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".distillery"
+CONFIG_DIR = Path.home() / ".fetchy"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 
@@ -24,7 +24,7 @@ def save_config(config: dict):
 def get_api_key() -> str:
     try:
         import keyring
-        key = keyring.get_password("distillery", "api_key")
+        key = keyring.get_password("fetchy", "api_key")
         if key:
             return key
     except Exception:
@@ -36,7 +36,7 @@ def get_api_key() -> str:
 def set_api_key(key: str):
     try:
         import keyring
-        keyring.set_password("distillery", "api_key", key)
+        keyring.set_password("fetchy", "api_key", key)
         return
     except Exception:
         pass
@@ -55,14 +55,22 @@ def set_provider(provider: str):
     save_config(config)
 
 
-def get_model_config() -> dict:
-    return load_config().get("model_config", {
-        "fast_model": "gpt-4o-mini",
-        "strong_model": "gpt-4o",
-    })
+def get_model() -> str:
+    return load_config().get("model", "")
 
 
-def set_model_config(mc: dict):
+def set_model(model: str):
     config = load_config()
-    config["model_config"] = mc
+    config["model"] = model
     save_config(config)
+
+
+PROVIDER_DEFAULTS = {
+    "openai": "gpt-4o",
+    "groq": "llama-3.3-70b-versatile",
+    "gemini": "gemini-2.0-flash",
+}
+
+
+def default_model_for(provider: str) -> str:
+    return PROVIDER_DEFAULTS.get(provider, "gpt-4o")
