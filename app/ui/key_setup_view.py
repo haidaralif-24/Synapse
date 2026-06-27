@@ -12,6 +12,7 @@ PROVIDER_OPTIONS = [
     ft.dropdown.Option("openai", "OpenAI"),
     ft.dropdown.Option("groq", "Groq"),
     ft.dropdown.Option("gemini", "Gemini (Google)"),
+    ft.dropdown.Option("openrouter", "OpenRouter"),
 ]
 
 
@@ -27,7 +28,7 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
     )
 
     def key_hint(provider: str) -> str:
-        hints = {"openai": "sk-...", "groq": "gsk_...", "gemini": "AIza..."}
+        hints = {"openai": "sk-...", "groq": "gsk_...", "gemini": "AIza...", "openrouter": "sk-or-v1-..."}
         return hints.get(provider, "API key")
     key_field = ft.TextField(
         label="API Key",
