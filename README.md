@@ -1,4 +1,4 @@
-# Fetchy
+# Synapse
 
 A local, BYOK (bring-your-own-key) multi-agent research assistant. Breaks a topic into sub-questions, searches the web, summarizes findings, fact-checks claims against sources, corrects unsupported claims, and writes a final report — all on your own machine.
 
@@ -32,12 +32,12 @@ python -m app.run "Your research topic"
 ```
 
 On first run you'll be prompted to enter an API key and choose a provider.
-You can also set `FETCHY_API_KEY` and `FETCHY_PROVIDER` env vars for the CLI.
+You can also set `SYNAPSE_API_KEY` and `SYNAPSE_PROVIDER` env vars for the CLI.
 
 ## Package as executable
 
 ```bash
-flet pack app/main.py --name fetchy --icon assets/icon.png
+flet pack app/main.py --name synapse --icon assets/icon.png
 ```
 
 ## Project Structure

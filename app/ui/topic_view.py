@@ -32,7 +32,7 @@ def TopicView(page: ft.Page, on_submit: Callable[[str], None], on_settings: Call
         controls=[
             ft.Column(
                 [
-                    ft.Row([ft.Text("Fetchy", size=28, weight=ft.FontWeight.BOLD), settings_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    ft.Row([ft.Text("Synapse", size=28, weight=ft.FontWeight.BOLD), settings_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ft.Text("Multi-Agent Research Assistant", size=14, color=ft.Colors.GREY_700),
                     ft.Divider(height=20),
                     topic_field,

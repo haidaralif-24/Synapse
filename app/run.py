@@ -18,15 +18,15 @@ def main():
 
     topic = sys.argv[1]
 
-    provider = os.environ.get("DISTILLERY_PROVIDER") or get_provider()
+    provider = os.environ.get("SYNAPSE_PROVIDER") or get_provider()
 
-    api_key = os.environ.get("DISTILLERY_API_KEY") or get_api_key(provider)
+    api_key = os.environ.get("SYNAPSE_API_KEY") or get_api_key(provider)
     if not api_key:
         print("Error: No API key found.", file=sys.stderr)
-        print("Set DISTILLERY_API_KEY env var, or run the GUI first to configure one.", file=sys.stderr)
+        print("Set SYNAPSE_API_KEY env var, or run the GUI first to configure one.", file=sys.stderr)
         sys.exit(1)
 
-    model = os.environ.get("DISTILLERY_MODEL") or get_model()
+    model = os.environ.get("SYNAPSE_MODEL") or get_model()
     llm = LLMClient(provider=provider, api_key=api_key, model=model or None)
     search = DuckDuckGoProvider()
     graph = build_pipeline(llm, search)

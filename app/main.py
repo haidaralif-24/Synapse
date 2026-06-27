@@ -29,7 +29,7 @@ STAGE_MAP = {
 
 
 def main(page: ft.Page):
-    page.title = "Fetchy — Research Assistant"
+    page.title = "Synapse — Research Assistant"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 24
     page.window.width = 900

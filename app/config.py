@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".fetchy"
+CONFIG_DIR = Path.home() / ".synapse"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
 
@@ -30,7 +30,7 @@ def get_api_key(provider: str = "") -> str:
     if provider:
         try:
             import keyring
-            key = keyring.get_password("fetchy", _keyring_credential(provider))
+            key = keyring.get_password("synapse", _keyring_credential(provider))
             if key:
                 return key
         except Exception:
@@ -42,7 +42,7 @@ def get_api_key(provider: str = "") -> str:
     # legacy global fallback
     try:
         import keyring
-        key = keyring.get_password("fetchy", "api_key")
+        key = keyring.get_password("synapse", "api_key")
         if key:
             return key
     except Exception:
@@ -54,7 +54,7 @@ def set_api_key(provider: str, key: str):
     """Persist *key* for *provider*."""
     try:
         import keyring
-        keyring.set_password("fetchy", _keyring_credential(provider), key)
+        keyring.set_password("synapse", _keyring_credential(provider), key)
         return
     except Exception:
         pass
