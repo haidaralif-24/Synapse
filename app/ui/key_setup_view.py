@@ -26,12 +26,16 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
         width=400,
     )
 
+    def key_hint(provider: str) -> str:
+        hints = {"openai": "sk-...", "groq": "gsk_...", "gemini": "AIza..."}
+        return hints.get(provider, "API key")
     key_field = ft.TextField(
         label="API Key",
         password=True,
         can_reveal_password=True,
         width=400,
-        hint_text="Leave blank to keep current key" if settings_mode else "sk-...",
+        value=get_api_key(existing_provider) if settings_mode else "",
+        hint_text="Leave blank to keep current key" if settings_mode else key_hint(existing_provider),
     )
 
     model_field = ft.TextField(
@@ -44,12 +48,17 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
     status_text = ft.Text("", color=ft.Colors.GREEN)
 
     def on_provider_change(e):
-        model_field.value = default_model_for(provider_dd.value)
+        provider = provider_dd.value
+        model_field.value = default_model_for(provider)
+        if settings_mode:
+            key_field.value = get_api_key(provider)
+        key_field.hint_text = key_hint(provider)
         page.update()
 
     provider_dd.on_change = on_provider_change
 
     def on_save_click(e):
+        provider = provider_dd.value
         key = key_field.value.strip()
         if not key and not settings_mode:
             status_text.value = "Please enter an API key."
@@ -61,9 +70,9 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
             status_text.color = ft.Colors.RED
             page.update()
             return
-        set_provider(provider_dd.value)
+        set_provider(provider)
         if key:
-            set_api_key(key)
+            set_api_key(provider, key)
         set_model(model_field.value.strip())
         status_text.value = "Saved. Redirecting..."
         status_text.color = ft.Colors.GREEN
@@ -71,7 +80,8 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
         on_saved()
 
     def on_test_click(e):
-        key = key_field.value.strip() or get_api_key()
+        provider = provider_dd.value
+        key = key_field.value.strip() or get_api_key(provider)
         if not key:
             status_text.value = "Enter an API key first."
             status_text.color = ft.Colors.RED

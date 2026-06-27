@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import re
 from typing import Optional
 
 from openai import APIError, AuthenticationError, OpenAI, RateLimitError
@@ -29,8 +31,9 @@ class LLMClient:
         self.model = model or cfg["default_model"]
         self._client = OpenAI(api_key=api_key, base_url=self.base_url)
 
-    def invoke(self, system: str, user: str, temperature: float = 0.0) -> str:
-        resp = self._client.chat.completions.create(
+    def invoke(self, system: str, user: str, temperature: float = 0.0,
+               response_format: Optional[dict] = None) -> str:
+        kwargs = dict(
             model=self.model,
             temperature=temperature,
             messages=[
@@ -38,7 +41,21 @@ class LLMClient:
                 {"role": "user", "content": user},
             ],
         )
+        if response_format:
+            kwargs["response_format"] = response_format
+        resp = self._client.chat.completions.create(**kwargs)
         return resp.choices[0].message.content or ""
+
+    @staticmethod
+    def extract_json(text: str) -> str:
+        """Strip markdown fences and return the first JSON object/array found."""
+        stripped = text.strip()
+        fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", stripped)
+        if fence_match:
+            stripped = fence_match.group(1).strip()
+        # validate that it's parseable
+        json.loads(stripped)
+        return stripped
 
     def check_connection(self) -> tuple[bool, str]:
         """Test the API connection with a minimal call. Returns (ok, message)."""

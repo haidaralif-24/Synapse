@@ -3,7 +3,7 @@ from __future__ import annotations
 from ..state import ResearchState, CorrectionEntry
 from ...providers.llm_client import LLMClient
 
-CORRECTION_SYSTEM = """You are a research correction assistant. Given flagged unsupported claims and the original source evidence, produce corrected text. For each claim, either fix it with source-backed information or mark it for removal."""
+CORRECTION_SYSTEM = """You are a research correction assistant. Given flagged unsupported claims, the original summaries, and source evidence, produce corrected summaries. For each flagged claim, either fix it with source-backed information or remove it entirely. Return ONLY the corrected summary text with no additional commentary."""
 
 
 def correction_node(state: ResearchState, llm: LLMClient) -> dict:
@@ -19,12 +19,12 @@ def correction_node(state: ResearchState, llm: LLMClient) -> dict:
         flagged_lines.append(f"- {v.get('claim', '')} (reason: {v.get('reason', '')})")
 
     user_prompt = (
-        f"Summary:\n{state.summaries}\n\n"
-        f"Flagged claims:\n{''.join(flagged_lines)}\n\n"
+        f"Original summaries:\n{state.summaries}\n\n"
+        f"Flagged unsupported claims:\n{''.join(flagged_lines)}\n\n"
         f"Evidence:\n{''.join(evidence_lines)}\n\n"
-        "Produce corrections."
+        "Return the corrected version of the summaries with every flagged claim either fixed using the evidence or removed."
     )
-    llm.invoke(CORRECTION_SYSTEM, user_prompt)
+    corrected_summaries = llm.invoke(CORRECTION_SYSTEM, user_prompt)
 
     correction_log = []
     for v in state.fact_check_verdicts:
@@ -37,5 +37,6 @@ def correction_node(state: ResearchState, llm: LLMClient) -> dict:
 
     return {
         "correction_log": correction_log,
+        "summaries": corrected_summaries,
         "current_stage": "Correction complete",
     }

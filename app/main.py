@@ -99,7 +99,7 @@ def main(page: ft.Page):
         nonlocal final_state
         try:
             provider_name = get_provider()
-            api_key = get_api_key()
+            api_key = get_api_key(provider_name)
             if not api_key:
                 raise ValueError("No API key configured. Please go back to setup.")
 
@@ -157,7 +157,7 @@ def main(page: ft.Page):
             time.sleep(0.5)
             go_report()
 
-    if not get_api_key():
+    if not get_api_key(get_provider()):
         show_setup()
     else:
         go_topic()

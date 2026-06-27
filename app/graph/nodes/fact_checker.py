@@ -28,11 +28,14 @@ def fact_checker_node(state: ResearchState, llm: LLMClient) -> dict:
         f"Original sources:\n{''.join(evidence_lines)}\n\n"
         "Identify unsupported claims. Return only a JSON list."
     )
-    response = llm.invoke(FACT_CHECKER_SYSTEM, user_prompt)
+    response = llm.invoke(
+        FACT_CHECKER_SYSTEM, user_prompt,
+        response_format={"type": "json_object"},
+    )
 
     try:
-        verdicts = json.loads(response)
-    except json.JSONDecodeError:
+        verdicts = json.loads(LLMClient.extract_json(response))
+    except (json.JSONDecodeError, ValueError, TypeError):
         verdicts = []
 
     return {

@@ -1,12 +1,3 @@
-"""
-CLI entry point to run the research pipeline headless (no GUI).
-
-Usage:
-    python -m app.run "Your research topic here"
-
-Requires an API key to be configured (run the GUI once to set it up,
-or set the DISTILLERY_API_KEY environment variable).
-"""
 from __future__ import annotations
 
 import json
@@ -27,13 +18,13 @@ def main():
 
     topic = sys.argv[1]
 
-    api_key = os.environ.get("DISTILLERY_API_KEY") or get_api_key()
+    provider = os.environ.get("DISTILLERY_PROVIDER") or get_provider()
+
+    api_key = os.environ.get("DISTILLERY_API_KEY") or get_api_key(provider)
     if not api_key:
         print("Error: No API key found.", file=sys.stderr)
         print("Set DISTILLERY_API_KEY env var, or run the GUI first to configure one.", file=sys.stderr)
         sys.exit(1)
-
-    provider = os.environ.get("DISTILLERY_PROVIDER") or get_provider()
 
     model = os.environ.get("DISTILLERY_MODEL") or get_model()
     llm = LLMClient(provider=provider, api_key=api_key, model=model or None)
