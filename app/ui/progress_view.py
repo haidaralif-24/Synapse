@@ -30,7 +30,7 @@ def ProgressView(page: ft.Page, status_text: ft.Text) -> Tuple[ft.View, list, li
         controls=[
             ft.Column(
                 [
-                    ft.Text("Research in Progress", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("Research in Progress", size=24, weight=ft.FontWeight.BOLD, color="#01b0e5"),
                     ft.Divider(height=16),
                     ft.Column(stage_rows, spacing=8, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                     ft.Divider(height=12),

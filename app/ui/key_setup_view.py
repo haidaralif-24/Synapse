@@ -112,8 +112,8 @@ def KeySetupView(page: ft.Page, on_saved: Callable, settings_mode: bool = False)
         controls=[
             ft.Column(
                 [
-                    ft.Text("Settings" if settings_mode else "Welcome to Synapse", size=28, weight=ft.FontWeight.BOLD),
-                    ft.Text("Your API key is stored locally and never leaves your device.", size=14, italic=True),
+                    ft.Text("Settings" if settings_mode else "Welcome to Synapse", size=28, weight=ft.FontWeight.BOLD, color="#01b0e5"),
+                    ft.Text("Your API key is stored locally and never leaves your device.", size=14, italic=True, color=ft.Colors.with_opacity(0.7, "#01b0e5")),
                     ft.Divider(height=20),
                     provider_dd,
                     model_field,

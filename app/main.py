@@ -28,9 +28,27 @@ STAGE_MAP = {
 }
 
 
+NAVY = "#03122f"
+CYAN = "#01b0e5"
+MID_BLUE = "#0435ad"
+
+
 def main(page: ft.Page):
     page.title = "Synapse — Research Assistant"
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.DARK
+    page.theme = ft.Theme(
+        color_scheme=ft.ColorScheme(
+            primary=ft.Colors.with_opacity(1, CYAN),
+            on_primary=ft.Colors.WHITE,
+            primary_container=ft.Colors.with_opacity(1, MID_BLUE),
+            surface=ft.Colors.with_opacity(1, NAVY),
+            on_surface=ft.Colors.WHITE,
+            surface_bright=ft.Colors.with_opacity(1, "#0a1a3a"),
+            on_surface_variant=ft.Colors.with_opacity(0.7, CYAN),
+            outline=ft.Colors.with_opacity(0.3, CYAN),
+        ),
+        use_material3=True,
+    )
     page.padding = 24
     page.window.width = 900
     page.window.height = 700
@@ -83,10 +101,10 @@ def main(page: ft.Page):
         for i, icon in enumerate(stage_icons):
             if i < stage_index:
                 icon.name = ft.Icons.CHECK_CIRCLE
-                icon.color = ft.Colors.GREEN
+                icon.color = CYAN
             elif i == stage_index:
                 icon.name = ft.Icons.PLAY_CIRCLE
-                icon.color = ft.Colors.BLUE
+                icon.color = CYAN
             else:
                 icon.name = ft.Icons.CIRCLE_OUTLINED
                 icon.color = ft.Colors.GREY_400

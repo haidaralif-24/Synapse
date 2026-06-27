@@ -24,7 +24,7 @@ def TopicView(page: ft.Page, on_submit: Callable[[str], None], on_settings: Call
             return
         on_submit(topic)
 
-    run_btn = ft.FilledButton("Run Research", on_click=on_run_click)
+    run_btn = ft.FilledButton("Run Research", on_click=on_run_click, style=ft.ButtonStyle(color=ft.Colors.WHITE))
 
     settings_btn = ft.IconButton(ft.Icons.SETTINGS, on_click=lambda e: on_settings() if on_settings else None, tooltip="Settings")
 
@@ -32,8 +32,8 @@ def TopicView(page: ft.Page, on_submit: Callable[[str], None], on_settings: Call
         controls=[
             ft.Column(
                 [
-                    ft.Row([ft.Text("Synapse", size=28, weight=ft.FontWeight.BOLD), settings_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    ft.Text("Multi-Agent Research Assistant", size=14, color=ft.Colors.GREY_700),
+                    ft.Row([ft.Text("Synapse", size=28, weight=ft.FontWeight.BOLD, color="#01b0e5"), settings_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                    ft.Text("Multi-Agent Research Assistant", size=14, color=ft.Colors.with_opacity(0.7, "#01b0e5")),
                     ft.Divider(height=20),
                     topic_field,
                     ft.Container(content=run_btn, margin=ft.Margin(0, 12, 0, 0)),

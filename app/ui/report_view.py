@@ -21,7 +21,7 @@ def ReportView(page: ft.Page, state: ResearchState, on_back: Callable) -> ft.Vie
             ft.Column(
                 [
                     ft.Row([back_btn], alignment=ft.MainAxisAlignment.START),
-                    ft.Text("Research Findings", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Text("Research Findings", size=24, weight=ft.FontWeight.BOLD, color="#01b0e5"),
                     ft.Divider(),
                     scroll_column,
                 ],
