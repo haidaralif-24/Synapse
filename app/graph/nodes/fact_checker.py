@@ -34,7 +34,13 @@ def fact_checker_node(state: ResearchState, llm: LLMClient) -> dict:
     )
 
     try:
-        verdicts = json.loads(LLMClient.extract_json(response))
+        parsed = json.loads(LLMClient.extract_json(response))
+        if isinstance(parsed, dict):
+            verdicts = next((v for v in parsed.values() if isinstance(v, list)), [parsed])
+        elif isinstance(parsed, list):
+            verdicts = parsed
+        else:
+            verdicts = []
     except (json.JSONDecodeError, ValueError, TypeError):
         verdicts = []
 

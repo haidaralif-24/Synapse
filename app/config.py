@@ -21,43 +21,15 @@ def save_config(config: dict):
     CONFIG_FILE.write_text(json.dumps(config, indent=2))
 
 
-def _keyring_credential(provider: str) -> str:
-    return f"api_key_{provider}"
-
-
 def get_api_key(provider: str = "") -> str:
-    """Return the API key for *provider*, falling back to the legacy global key."""
-    if provider:
-        try:
-            import keyring
-            key = keyring.get_password("synapse", _keyring_credential(provider))
-            if key:
-                return key
-        except Exception:
-            pass
-        config = load_config()
-        per_provider = config.get("api_keys", {})
-        if provider in per_provider:
-            return per_provider[provider]
-    # legacy global fallback
-    try:
-        import keyring
-        key = keyring.get_password("synapse", "api_key")
-        if key:
-            return key
-    except Exception:
-        pass
-    return load_config().get("api_key", "")
+    config = load_config()
+    per_provider = config.get("api_keys", {})
+    if provider and provider in per_provider:
+        return per_provider[provider]
+    return per_provider.get(config.get("provider", ""), "")
 
 
 def set_api_key(provider: str, key: str):
-    """Persist *key* for *provider*."""
-    try:
-        import keyring
-        keyring.set_password("synapse", _keyring_credential(provider), key)
-        return
-    except Exception:
-        pass
     config = load_config()
     per_provider = config.setdefault("api_keys", {})
     per_provider[provider] = key
